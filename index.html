@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Registro de Participantes - Sistema Bancario</title>
+<style>
+  :root{
+    --bg:#f4f6f9; --card:#ffffff; --border:#e1e5eb; --text:#1f2937; --muted:#6b7280;
+    --primary:#2563eb; --primary-dark:#1d4ed8; --danger:#dc2626; --danger-dark:#b91c1c;
+    --green:#16a34a; --orange:#d97706; --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg); color:var(--text);
+  }
+  header{
+    background:linear-gradient(135deg,#1d4ed8,#2563eb); color:white; padding:22px 24px;
+  }
+  header h1{margin:0; font-size:22px;}
+  header p{margin:4px 0 0; font-size:13px; opacity:0.9;}
+
+  .tabs{
+    display:flex; gap:4px; background:var(--card); padding:6px; margin:16px 24px 0;
+    border-radius:var(--radius); border:1px solid var(--border); flex-wrap:wrap;
+  }
+  .tab-btn{
+    flex:1; min-width:120px; padding:10px 12px; border:none; background:transparent; cursor:pointer;
+    border-radius:8px; font-size:14px; font-weight:600; color:var(--muted);
+  }
+  .tab-btn.active{background:var(--primary); color:white;}
+  .tab-btn:hover:not(.active){background:#eef2ff;}
+
+  main{padding:20px 24px 60px; max-width:1100px; margin:0 auto;}
+  .panel{display:none;}
+  .panel.active{display:block;}
+
+  .card{
+    background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+    padding:18px; margin-bottom:16px;
+  }
+  .card h2{margin-top:0; font-size:17px;}
+  .card h3{font-size:14px; color:var(--muted); margin:0 0 10px;}
+
+  label{display:block; font-size:13px; font-weight:600; margin:10px 0 4px; color:#374151;}
+  input[type=text], input[type=number], input[type=email], input[type=tel], select{
+    width:100%; padding:9px 10px; border:1px solid var(--border); border-radius:8px; font-size:14px;
+    background:#fff;
+  }
+  input:focus, select:focus{outline:2px solid #93c5fd; border-color:var(--primary);}
+
+  .row{display:flex; gap:10px; flex-wrap:wrap;}
+  .row > div{flex:1; min-width:180px;}
+
+  button{
+    cursor:pointer; border:none; border-radius:8px; padding:9px 16px; font-size:14px; font-weight:600;
+  }
+  .btn-primary{background:var(--primary); color:white;}
+  .btn-primary:hover{background:var(--primary-dark);}
+  .btn-danger{background:#fee2e2; color:var(--danger);}
+  .btn-danger:hover{background:var(--danger); color:white;}
+  .btn-ghost{background:#eef2f7; color:#374151;}
+  .btn-ghost:hover{background:#e2e8f0;}
+  .btn-sm{padding:5px 10px; font-size:12px;}
+
+  ul.plain{list-style:none; padding:0; margin:0;}
+  ul.plain li{
+    display:flex; justify-content:space-between; align-items:center; gap:10px;
+    padding:8px 10px; border:1px solid var(--border); border-radius:8px; margin-bottom:6px; background:#fafbfc;
+    font-size:14px;
+  }
+
+  .subblock{margin-left:16px; margin-top:8px; padding:10px; border-left:3px solid #dbeafe; background:#f8fafc; border-radius:6px;}
+
+  .badge{padding:2px 9px; border-radius:12px; font-size:11px; font-weight:700;}
+  .badge-green{background:#dcfce7; color:var(--green);}
+  .badge-orange{background:#fef3c7; color:var(--orange);}
+
+  table{width:100%; border-collapse:collapse; font-size:13px;}
+  table th, table td{text-align:left; padding:8px 6px; border-bottom:1px solid var(--border); vertical-align:top;}
+  table th{color:var(--muted); font-size:12px; text-transform:uppercase;}
+
+  .empty{color:var(--muted); font-size:13px; font-style:italic; padding:8px 0;}
+  .msg{padding:10px 12px; border-radius:8px; font-size:13px; margin-bottom:12px;}
+  .msg-error{background:#fee2e2; color:var(--danger-dark);}
+  .msg-ok{background:#dcfce7; color:#15803d;}
+
+  .stat-grid{display:flex; gap:14px; flex-wrap:wrap;}
+  .stat{
+    flex:1; min-width:140px; background:#f8fafc; border:1px solid var(--border); border-radius:10px;
+    padding:14px; text-align:center;
+  }
+  .stat .num{font-size:26px; font-weight:800; color:var(--primary-dark);}
+  .stat .lbl{font-size:12px; color:var(--muted); margin-top:2px;}
+
+  .hidden{display:none !important;}
+  .divider{border:none; border-top:1px solid var(--border); margin:14px 0;}
+  small.hint{color:var(--muted); display:block; margin-top:4px;}
+
+  section.section-form {margin-bottom: 20px;}
+  .form-group {margin-bottom: 16px;}
+
+  /* Modal de edicion */
+  .modal-bg{position:fixed; inset:0; background:rgba(15,23,42,.55); display:flex; align-items:flex-start;
+    justify-content:center; padding:30px 12px; overflow-y:auto; z-index:50;}
+  .modal{background:var(--card); border-radius:var(--radius); width:100%; max-width:760px; padding:20px;
+    box-shadow:0 20px 50px rgba(0,0,0,.3);}
+  .modal h2{margin:0 0 4px; font-size:18px;}
+  .modal-actions{display:flex; gap:8px; justify-content:flex-end; margin-top:16px;}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📋 Registro de Participantes</h1>
+  <p>Gestiona denominaciones, iglesias, instituciones, grados, universidades y participantes con sistema bancario integrado</p>
+</header>
+
+<div class="tabs">
+  <button class="tab-btn active" data-tab="denominaciones">⛪ Denominaciones</button>
+  <button class="tab-btn" data-tab="iglesias">🏛️ Iglesias</button>
+  <button class="tab-btn" data-tab="instituciones">🏫 Instituciones</button>
+  <button class="tab-btn" data-tab="grados">📚 Grados</button>
+  <button class="tab-btn" data-tab="universidades">🎓 Universidades</button>
+  <button class="tab-btn" data-tab="carreras">📖 Carreras</button>
+  <button class="tab-btn" data-tab="semestres">📑 Semestres</button>
+  <button class="tab-btn" data-tab="clubes">🏅 Clubes</button>
+  <button class="tab-btn" data-tab="equipos">🏆 Equipos</button>
+  <button class="tab-btn" data-tab="participantes">👥 Participantes</button>
+  <button class="tab-btn" data-tab="export">⬇️ Exportar</button>
+</div>
+
+<main>
+
+  <!-- DENOMINACIONES -->
+  <section class="panel active" id="panel-denominaciones">
+    <div class="card">
+      <h2>Crear denominación</h2>
+      <div class="form-group">
+        <label>Nombre de la denominación</label>
+        <input type="text" id="denomNombre" placeholder="Ej: Bautista, Evangélica, Católica">
+      </div>
+      <button class="btn-primary" onclick="addDenominacion()">+ Agregar denominación</button>
+      <div id="denomMsg" class="msg hidden"></div>
+    </div>
+    <div class="card">
+      <h2>Denominaciones existentes</h2>
+      <ul class="plain" id="denomList"></ul>
+      <div id="denomEmpty" class="empty">Sin denominaciones aún</div>
+    </div>
+  </section>
+
+  <!-- IGLESIAS -->
+  <section class="panel" id="panel-iglesias">
+    <div class="card">
+      <h2>Crear iglesia</h2>
+      <div class="form-group">
+        <label>Denominación</label>
+        <select id="iglesiasDenom"></select>
+      </div>
+      <div class="form-group">
+        <label>Nombre de la iglesia</label>
+        <input type="text" id="iglesiaNombre" placeholder="Ej: Iglesia Bautista Central">
+      </div>
+      <div class="form-group">
+        <label>Dirección (opcional)</label>
+        <input type="text" id="iglesiaDir" placeholder="Ej: Calle 5 #123">
+      </div>
+      <button class="btn-primary" onclick="addIglesia()">+ Agregar iglesia</button>
+      <div id="iglesiaMsg" class="msg hidden"></div>
+    </div>
+    <div class="card">
+      <h2>Iglesias existentes</h2>
+      <div id="iglesiasListContainer"></div>
+      <div id="iglesiaEmpty" class="empty">Sin iglesias aún</div>
+    </div>
+  </section>
+
+  <!-- INSTITUCIONES -->
+  <section class="panel" id="panel-instituciones">
+    <div class="card">
+      <h2>Crear institución educativa</h2>
+      <div class="form-group">
+        <label>Nombre de la institución</label>
+        <input type="text" id="instNombre" placeholder="Ej: Colegio San José">
+      </div>
+      <button class="btn-primary" onclick="addInstitucion()">+ Agregar institución</button>
+      <div id="instMsg" class="msg hidden"></div>
+    </div>
+    <div class="card">
+      <h2>Instituciones existentes</h2>
+      <ul class="plain" id="instList"></ul>
+      <div id="instEmpty" class="empty">Sin instituciones aún</div>
+    </div>
+  </section>
+
+  <!-- GRADOS -->
+  <section class="panel" id="panel-grados">
+    <div class="card">
+      <h2>Asignar grados a institución</h2>
+      <div class="form-group">
+        <label>Institución</label>
+        <select id="gradosInst"></select>
+      </div>
+      <div class="form-group">
+        <label>Grados (1-11): selecciona los que aplican</label>
+        <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap:8px; margin-top:8px;">
+          <label style="display:flex; align-items:center; gap:6px; margin:0;">
+            <input type="checkbox" class="grado-check" value="1"> 1°
+          </label>
+          <label style="display:flex; align-items:center; gap:6px; margin:0;">
+            <input type="checkbox" class="grado-check" value="2"> 2°
+          </label>
+          <label style="display:flex; align-items:center; gap:6px; margin:0;">
+            <input type="checkbox" class="grado-check" value="3"> 3°
+          </label>
+          <label style="display:flex; align-items:center; gap:6px; margin:0;">
+            <input type="checkbox" class="grado-check" value="4"> 4°
+          </label>
+          <label style="display:flex; align-items:center; gap:6px; margin:0;">
+            <input type="checkbox" class="grado-check" value="5"> 5°
+          </label>
+          <label style="display:flex; align-items:center; gap:6px; margin:0;">
+            <input type="checkbox" class="grado-check" value="6"> 6°
+          </label>
+          <label style="display:flex; align-items:center; gap:6px; margin:0;">
+            <input type="checkbox" class="grado-check" value="7"> 7°
+          </label>
+          <label style="display:flex; align-items:center; gap:6px; margin:0;">
+            <input type="checkbox" class="grado-check" value="8"> 8°
+          </label>
+          <label style="display:flex; align-items:center; gap:6px; margin:0;">
+            <input type="checkbox" class="grado-check" value="9"> 9°
+          </label>
+          <label style="display:flex; align-items:center; gap:6px; margin:0;">
+            <input type="checkbox" class="grado-check" value="10"> 10°
+          </label>
+          <label style="display:flex; align-items:center; gap:6px; margin:0;">
+            <input type="checkbox" class="grado-check" value="11"> 11°
+          </label>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="addGrados()">✓ Asignar grados</button>
+      <div id="gradosMsg" class="msg hidden"></div>
+    </div>
+    <div class="card">
+      <h2>Grados asignados</h2>
+      <div id="gradosList"></div>
+      <div id="gradosEmpty" class="empty">Sin grados asignados aún</div>
+    </div>
+  </section>
+
+  <!-- UNIVERSIDADES -->
+  <section class="panel" id="panel-universidades">
+    <div class="card">
+      <h2>Crear universidad</h2>
+      <div class="form-group">
+        <label>Nombre de la universidad</label>
+        <input type="text" id="univNombre" placeholder="Ej: Universidad Nacional de Colombia">
+      </div>
+      <button class="btn-primary" onclick="addUniversidad()">+ Agregar universidad</button>
+      <div id="univMsg" class="msg hidden"></div>
+    </div>
+    <div class="card">
+      <h2>Universidades existentes</h2>
+      <ul class="plain" id="univList"></ul>
+      <div id="univEmpty" class="empty">Sin universidades aún</div>
+    </div>
+  </section>
+
+  <!-- CARRERAS -->
+  <section class="panel" id="panel-carreras">
+    <div class="card">
+      <h2>Crear carrera</h2>
+      <div class="form-group">
+        <label>Universidad</label>
+        <select id="carrerasUniv"></select>
+      </div>
+      <div class="form-group">
+        <label>Nombre de la carrera</label>
+        <input type="text" id="carreraNombre" placeholder="Ej: Ingeniería de Sistemas">
+      </div>
+      <button class="btn-primary" onclick="addCarrera()">+ Agregar carrera</button>
+      <div id="carreraMsg" class="msg hidden"></div>
+    </div>
+    <div class="card">
+      <h2>Carreras existentes</h2>
+      <div id="carrerasListContainer"></div>
+      <div id="carreraEmpty" class="empty">Sin carreras aún</div>
+    </div>
+  </section>
+
+  <!-- SEMESTRES -->
+  <section class="panel" id="panel-semestres">
+    <div class="card">
+      <h2>Asignar semestres a carrera</h2>
+      <div class="form-group">
+        <label>Carrera</label>
+        <select id="semestresCarrera"></select>
+      </div>
+      <div class="form-group">
+        <label>Semestres (1-10): selecciona los que aplican</label>
+        <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap:8px; margin-top:8px;">
+          <label style="display:flex; align-items:center; gap:6px; margin:0;">
+            <input type="checkbox" class="semestre-check" value="1"> 1°
+          </label>
+          <label style="display:flex; align-items:center; gap:6px; margin:0;">
+            <input type="checkbox" class="semestre-check" value="2"> 2°
+          </label>
+          <label style="display:flex; align-items:center; gap:6px; margin:0;">
+            <input type="checkbox" class="semestre-check" value="3"> 3°
+          </label>
+          <label style="display:flex; align-items:center; gap:6px; margin:0;">
+            <input type="checkbox" class="semestre-check" value="4"> 4°
+          </label>
+          <label style="display:flex; align-items:center; gap:6px; margin:0;">
+            <input type="checkbox" class="semestre-check" value="5"> 5°
+          </label>
+          <label style="display:flex; align-items:center; gap:6px; margin:0;">
+            <input type="checkbox" class="semestre-check" value="6"> 6°
+          </label>
+          <label style="display:flex; align-items:center; gap:6px; margin:0;">
+            <input type="checkbox" class="semestre-check" value="7"> 7°
+          </label>
+          <label style="display:flex; align-items:center; gap:6px; margin:0;">
+            <input type="checkbox" class="semestre-check" value="8"> 8°
+          </label>
+          <label style="display:flex; align-items:center; gap:6px; margin:0;">
+            <input type="checkbox" class="semestre-check" value="9"> 9°
+          </label>
+          <label style="display:flex; align-items:center; gap:6px; margin:0;">
+            <input type="checkbox" class="semestre-check" value="10"> 10°
+          </label>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="addSemestres()">✓ Asignar semestres</button>
+      <div id="semestresMsg" class="msg hidden"></div>
+    </div>
+    <div class="card">
+      <h2>Semestres asignados</h2>
+      <div id="semestresList"></div>
+      <div id="semestresEmpty" class="empty">Sin semestres asignados aún</div>
+    </div>
+  </section>
+
+  <!-- CLUBES -->
+  <section class="panel" id="panel-clubes">
+    <div class="card">
+      <h2>Crear club</h2>
+      <div class="form-group">
+        <label>Nombre del club</label>
+        <input type="text" id="clubNombre" placeholder="Ej: Club de Ajedrez, Club de Música">
+      </div>
+      <button class="btn-primary" onclick="addClub()">+ Agregar club</button>
+      <div id="clubMsg" class="msg hidden"></div>
+    </div>
+    <div class="card">
+      <h2>Clubes existentes</h2>
+      <ul class="plain" id="clubList"></ul>
+      <div id="clubEmpty" class="empty">Sin clubes aún</div>
+    </div>
+  </section>
+
+  <!-- EQUIPOS -->
+  <section class="panel" id="panel-equipos">
+    <div class="card">
+      <h2>Crear equipo</h2>
+      <p style="color:var(--muted); font-size:13px;">Un equipo pertenece a una sola de estas categorías: denominación, institución, universidad o club.</p>
+      
+      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap:8px; margin-bottom:16px;">
+        <label style="display:flex; align-items:center; gap:6px; margin:0; padding:8px; border:1px solid var(--border); border-radius:8px; cursor:pointer;">
+          <input type="radio" name="equipo-tipo" value="denominacion" checked> Denominación
+        </label>
+        <label style="display:flex; align-items:center; gap:6px; margin:0; padding:8px; border:1px solid var(--border); border-radius:8px; cursor:pointer;">
+          <input type="radio" name="equipo-tipo" value="institucion"> Institución
+        </label>
+        <label style="display:flex; align-items:center; gap:6px; margin:0; padding:8px; border:1px solid var(--border); border-radius:8px; cursor:pointer;">
+          <input type="radio" name="equipo-tipo" value="universidad"> Universidad
+        </label>
+        <label style="display:flex; align-items:center; gap:6px; margin:0; padding:8px; border:1px solid var(--border); border-radius:8px; cursor:pointer;">
+          <input type="radio" name="equipo-tipo" value="club"> Club
+        </label>
+      </div>
+
+      <div class="form-group">
+        <label>Selecciona la entidad</label>
+        <select id="equipoEntidad"></select>
+      </div>
+
+      <div class="form-group">
+        <label>Nombre del equipo</label>
+        <input type="text" id="equipoNombre" placeholder="Ej: Equipo A, Equipo de Fútbol">
+      </div>
+      
+      <button class="btn-primary" onclick="addEquipo()">+ Agregar equipo</button>
+      <div id="equipoMsg" class="msg hidden"></div>
+    </div>
+
+    <div class="card">
+      <h2>Equipos existentes</h2>
+      <div id="equiposList"></div>
+      <div id="equiposEmpty" class="empty">Sin equipos aún</div>
+    </div>
+  </section>
+
+  <!-- PARTICIPANTES -->
+  <section class="panel" id="panel-participantes">
+    <div class="card">
+      <h2>Registrar participante</h2>
+      
+      <section class="section-form">
+        <h3>Datos personales</h3>
+        <div class="form-group">
+          <label>Código único (se genera automáticamente)</label>
+          <input type="text" id="partCodigo" placeholder="Se asigna al registrar" readonly>
+        </div>
+        <div class="form-group">
+          <label>Nombre completo *</label>
+          <input type="text" id="partNombre" placeholder="Nombre y apellido">
+        </div>
+        <div class="form-group">
+          <label>Nombre de usuario *</label>
+          <input type="text" id="partUsuario" placeholder="Ej: juan_perez" autocomplete="off">
+          <small class="hint">Obligatorio. Puede repetirse entre participantes.</small>
+        </div>
+        <div class="row">
+          <div>
+            <div class="form-group">
+              <label>Edad</label>
+              <input type="number" id="partEdad" placeholder="18" min="1" max="120">
+            </div>
+          </div>
+          <div>
+            <div class="form-group">
+              <label>Teléfono</label>
+              <input type="tel" id="partTelefono" placeholder="3001234567">
+            </div>
+          </div>
+          <div>
+            <div class="form-group">
+              <label>Correo</label>
+              <input type="email" id="partCorreo" placeholder="usuario@email.com">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-form">
+        <h3>Contexto religioso</h3>
+        <div class="form-group">
+          <label>Iglesia (opcional)</label>
+          <select id="partIglesia">
+            <option value="">-- Sin iglesia --</option>
+          </select>
+          <small class="hint">Selecciona una iglesia específica o déjalo vacío</small>
+        </div>
+      </section>
+
+      <section class="section-form">
+        <h3>Contexto educativo - Primaria/Secundaria</h3>
+        <div class="form-group">
+          <label>Grado escolar (opcional)</label>
+          <select id="partGrado">
+            <option value="">-- Sin grado --</option>
+          </select>
+          <small class="hint">Selecciona el grado si es estudiante de primaria o secundaria</small>
+        </div>
+      </section>
+
+      <section class="section-form">
+        <h3>Contexto educativo - Universidad</h3>
+        <div class="form-group">
+          <label>Semestre universitario (opcional)</label>
+          <select id="partSemestre">
+            <option value="">-- Sin semestre --</option>
+          </select>
+          <small class="hint">Selecciona el semestre si es estudiante universitario</small>
+        </div>
+      </section>
+
+      <section class="section-form">
+        <h3>Club</h3>
+        <div class="form-group">
+          <label>Club (opcional)</label>
+          <select id="partClub">
+            <option value="">-- Sin club --</option>
+          </select>
+        </div>
+      </section>
+
+      <section class="section-form">
+        <h3>Equipos</h3>
+        <div class="form-group">
+          <label>Asignar equipos (opcional)</label>
+          <div id="equiposParticipanteCheckbox" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap:8px; margin-top:8px;"></div>
+          <small class="hint">Selecciona los equipos según el contexto del participante (denominación, institución, universidad, club)</small>
+        </div>
+      </section>
+
+      <section class="section-form">
+        <h3>Datos del acudiente (si aplica)</h3>
+        <div class="form-group">
+          <label>Nombre del acudiente</label>
+          <input type="text" id="acudienteNombre" placeholder="Nombre del padre/madre/tutor">
+        </div>
+        <div class="row">
+          <div>
+            <div class="form-group">
+              <label>Teléfono del acudiente</label>
+              <input type="tel" id="acudienteTelefono" placeholder="3001234567">
+            </div>
+          </div>
+          <div>
+            <div class="form-group">
+              <label>Correo del acudiente</label>
+              <input type="email" id="acudienteCorreo" placeholder="usuario@email.com">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <button class="btn-primary" onclick="addParticipante()">✓ Registrar participante</button>
+      <div id="partMsg" class="msg hidden"></div>
+    </div>
+
+    <div class="card">
+      <h2>Participantes registrados</h2>
+      <div class="form-group">
+        <input type="text" id="partSearch" placeholder="Buscar por nombre, usuario o código..." style="margin-bottom:10px;">
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Nombre</th>
+            <th>Usuario</th>
+            <th>Edad</th>
+            <th>Contacto</th>
+            <th>Iglesia</th>
+            <th>Grado/Semestre</th>
+            <th>Club</th>
+            <th>Equipos</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="partTableBody"></tbody>
+      </table>
+      <div id="partEmpty" class="empty">Sin participantes aún</div>
+    </div>
+  </section>
+
+  <!-- EXPORTAR -->
+  <section class="panel" id="panel-export">
+    <div class="card">
+      <h2>Estadísticas</h2>
+      <div class="stat-grid" id="exportStats"></div>
+    </div>
+    <div class="card">
+      <h2>Descargar datos</h2>
+      <p style="color:var(--muted); font-size:13px;">Los datos se exportan en formato JSON estructurado según el schema de base de datos.</p>
+      <button class="btn-primary" onclick="downloadFull()">⬇️ Descargar JSON completo</button>
+      <div id="exportMsg" class="msg hidden"></div>
+    </div>
+  </section>
+
+</main>
+
+  <!-- MODAL EDITAR PARTICIPANTE -->
+  <div id="editPartModal" class="modal-bg hidden">
+    <div class="modal">
+      <h2>Editar participante</h2>
+      <small class="hint">Código: <strong id="editPartCodigoTxt"></strong> (no se puede cambiar)</small>
+      <input type="hidden" id="editPartCodigo">
+
+      <div class="row">
+        <div><label>Nombre completo *</label><input type="text" id="editPartNombre"></div>
+        <div><label>Nombre de usuario *</label><input type="text" id="editPartUsuario" autocomplete="off"></div>
+      </div>
+      <div class="row">
+        <div><label>Edad</label><input type="number" id="editPartEdad" min="1" max="120"></div>
+        <div><label>Teléfono</label><input type="tel" id="editPartTelefono"></div>
+        <div><label>Correo</label><input type="email" id="editPartCorreo"></div>
+      </div>
+      <div class="row">
+        <div><label>Iglesia</label><select id="editPartIglesia"></select></div>
+        <div><label>Club</label><select id="editPartClub"></select></div>
+      </div>
+      <div class="row">
+        <div><label>Grado escolar</label><select id="editPartGrado"></select></div>
+        <div><label>Semestre universitario</label><select id="editPartSemestre"></select></div>
+      </div>
+
+      <label>Equipos</label>
+      <div id="editEquiposCheckbox" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:8px;"></div>
+
+      <hr class="divider">
+      <div class="form-group"><label>Nombre del acudiente</label><input type="text" id="editAcudienteNombre"></div>
+      <div class="row">
+        <div><label>Teléfono del acudiente</label><input type="tel" id="editAcudienteTelefono"></div>
+        <div><label>Correo del acudiente</label><input type="email" id="editAcudienteCorreo"></div>
+      </div>
+
+      <div id="editPartMsg" class="msg hidden" style="margin-top:12px;"></div>
+      <div class="modal-actions">
+        <button class="btn-ghost" onclick="closeEditParticipante()">Cancelar</button>
+        <button class="btn-primary" onclick="saveParticipante()">💾 Guardar cambios</button>
+      </div>
+    </div>
+  </div>
+
+
+<script src="app.js"></script>
+
+</body>
+</html>
